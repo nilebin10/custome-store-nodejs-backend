@@ -1,0 +1,19 @@
+{
+  "name": "custome-store-nodejs-backend",
+  "version": "1.0.0",
+  "description": "Backend for Custom store app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nilebin10/custome-store-nodejs-backend.git"
+  },
+  "author": "Nilesh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nilebin10/custome-store-nodejs-backend/issues"
+  },
+  "homepage": "https://github.com/nilebin10/custome-store-nodejs-backend#readme"
+}
