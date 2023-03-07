@@ -1,7 +1,8 @@
 export enum STATUS_CODE {
     NOT_FOUND = 404,
     INTERNAL_ERROR = 501,
-    SUCCESS = 200
+    SUCCESS = 200,
+    BAD_REQUEST = 400
 }
 
 export type Response = {
@@ -40,6 +41,7 @@ function getHeaders():Record<string, any> {
     return {
         'Access-Control-Allow-Methods': '*',
         'Access-Control-Allow-Headers': '*',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
     }
 }
