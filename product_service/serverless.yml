@@ -20,11 +20,38 @@ service: product-service
 # Check out our docs for more details
 frameworkVersion: '3'
 
+useDotenv: true
+
 provider:
   name: aws
   runtime: nodejs14.x
   stage: dev
   region: us-east-1
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+          - "dynamodb:DescribeTable"
+          - "dynamodb:Query"
+          - "dynamodb:Scan"
+          - "dynamodb:GetItem"
+          - "dynamodb:PutItem"
+          - "dynamodb:BatchWriteItem"
+          - "dynamodb:DeleteItem"
+          Resource:
+          - "arn:aws:dynamodb:us-east-1:${env:ACCOUNT}:table/${env:PRODUCTS_TABLE_NAME}"
+        - Effect: "Allow"
+          Action:
+          - "dynamodb:DescribeTable"
+          - "dynamodb:Query"
+          - "dynamodb:Scan"
+          - "dynamodb:GetItem"
+          - "dynamodb:PutItem"
+          - "dynamodb:BatchWriteItem"
+          - "dynamodb:DeleteItem"
+          Resource:
+          - "arn:aws:dynamodb:us-east-1:${env:ACCOUNT}:table/${env:STOCKS_TABLE_NAME}"
 
 
 plugins:
@@ -32,33 +59,14 @@ plugins:
   - serverless-webpack
 # you can overwrite defaults here
 
-# you can add statements to the Lambda function's IAM Role here
-#  iam:
-#    role:
-#      statements:
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:ListBucket"
-#          Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:PutObject"
-#          Resource:
-#            Fn::Join:
-#              - ""
-#              - - "arn:aws:s3:::"
-#                - "Ref" : "ServerlessDeploymentBucket"
-#                - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
 # you can add packaging information here
 custom:
   webpack:
     webpackConfig: './webpack.config.js'
     includeModules: true
+  environments:
+    PRODUCTS_TABLE_NAME: ${env:PRODUCTS_TABLE_NAME}
+    STOCKS_TABLE_NAME: ${env:STOCKS_TABLE_NAME}
  
 package:
  patterns:
@@ -75,9 +83,62 @@ functions:
      - http:
          path: /products
          method: get
+    environment:
+      PRODUCTS_TABLE_NAME: ${self:custom.environments.PRODUCTS_TABLE_NAME}
+      STOCKS_TABLE_NAME: ${self:custom.environments.STOCKS_TABLE_NAME}
   getProductById:
     handler: handler.getProductById
     events:
      - http:
          path: /products/{productid}
          method: get
+    environment:
+     PRODUCTS_TABLE_NAME: ${self:custom.environments.PRODUCTS_TABLE_NAME}
+     STOCKS_TABLE_NAME: ${self:custom.environments.STOCKS_TABLE_NAME}
+  createProduct:
+    handler: handler.createProduct
+    events:
+     - http:
+         path: /product
+         method: post
+         cors: true
+    environment:
+     PRODUCTS_TABLE_NAME: ${self:custom.environments.PRODUCTS_TABLE_NAME}
+     STOCKS_TABLE_NAME: ${self:custom.environments.STOCKS_TABLE_NAME}
+
+# resources: # CloudFormation template syntax from here on.
+#   Resources:
+#     ProductTable:
+#       Type: AWS::DynamoDB::Table
+#       Properties:
+#         TableName: ${self:custom.environments.PRODUCTS_TABLE_NAME}
+#         AttributeDefinitions:
+#           - AttributeName: id
+#             AttributeType: S
+#           - AttributeName: title
+#             AttributeType: S
+#         KeySchema:
+#           - AttributeName: id
+#             KeyType: HASH
+#           - AttributeName: title
+#             KeyType: RANGE
+#         ProvisionedThroughput:
+#           ReadCapacityUnits: 1
+#           WriteCapacityUnits: 1
+#     StockTable:
+#       Type: AWS::DynamoDB::Table
+#       Properties:
+#         TableName: ${self:custom.environments.STOCKS_TABLE_NAME}
+#         AttributeDefinitions:
+#           - AttributeName: product_id
+#             AttributeType: S
+#           - AttributeName: count
+#             AttributeType: N
+#         KeySchema:
+#           - AttributeName: product_id
+#             KeyType: HASH
+#           - AttributeName: count
+#             KeyType: RANGE
+#         ProvisionedThroughput:
+#           ReadCapacityUnits: 1
+#           WriteCapacityUnits: 1
