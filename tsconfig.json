@@ -101,6 +101,6 @@
       "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
     },
     "include": ["./**/*.ts", "./product-service/productList.json"],
-    "exclude": ["./dist", "node_modules"]
+    "exclude": ["**/*.test.ts", "./dist", "node_modules"]
   }
   
