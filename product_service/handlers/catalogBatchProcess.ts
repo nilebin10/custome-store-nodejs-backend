@@ -8,18 +8,19 @@ export async function catalogBatchProcess(event: SQSEvent){
     const sns = new SNSClient({ region: 'us-east-1' });
     try{
         const topicArn = process.env.SNS_TOPIC_ARN;
-        winstonLogger.logRequest(`New Array ${JSON.stringify(event)}`);
         for (let record of event.Records){
             const { body } = record;
             winstonLogger.logRequest(`Record data:: ${body}`);
-            const { item : product} = await productService.createProduct(JSON.parse(body));
+            let data = JSON.parse(body);
+            data = { ...data, count: parseInt(data?.count), price: parseInt(data?.price) }
+            const { item : product} = await productService.createProduct(JSON.stringify(data));
             winstonLogger.logRequest(`Created Product:: ${JSON.stringify(product)}`);
             if (product?.id) {
                 const snsPublishItem: PublishCommandInput = {
                     Message: `Product is added successfully with id ${product.id}`,
                     TopicArn: topicArn
                 }
-                sns.send(new PublishCommand(snsPublishItem))
+                await sns.send(new PublishCommand(snsPublishItem))
             }
         }
 

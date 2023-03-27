@@ -77,6 +77,7 @@ export class ProductService implements IProductService {
     async createProduct(item: any){
         try{
             const _item = JSON.parse(item as string);
+            winstonLogger.logRequest(`Received item:: ${item}`)
             if (this.validate(_item)) {
                 const id = uuid();
                 const { count, ...product } = _item;

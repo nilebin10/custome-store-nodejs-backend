@@ -135,7 +135,7 @@ functions:
       SNS_TOPIC_ARN:
         Fn::GetAtt:
           - ProductSNSTopic
-          - TopicName
+          - TopicArn
 
 resources:
   Resources:
