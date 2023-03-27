@@ -52,6 +52,17 @@ provider:
           - "dynamodb:DeleteItem"
           Resource:
           - "arn:aws:dynamodb:us-east-1:${env:ACCOUNT}:table/${env:STOCKS_TABLE_NAME}"
+        - Effect: "Allow"
+          Action:
+          - "sqs:SendMessage"
+          - "sqs:GetMessage"
+          Resource:
+          - "arn:aws:dynamodb:us-east-1:${env:ACCOUNT}:${env:SQS_QUEUE}"
+        - Effect: "Allow"
+          Action:
+          - "sns:Publish"
+          Resource:
+          - "arn:aws:dynamodb:us-east-1:${env:ACCOUNT}:${env:SNS_TOPIC_NAME}"
 
 
 plugins:
@@ -67,6 +78,10 @@ custom:
   environments:
     PRODUCTS_TABLE_NAME: ${env:PRODUCTS_TABLE_NAME}
     STOCKS_TABLE_NAME: ${env:STOCKS_TABLE_NAME}
+    SQS_NAME: ${env:SQS_QUEUE}
+    SNS_TOPIC_NAME: ${env:SNS_TOPIC_NAME}
+    EMAIL_ONE: ${env:EMAIL_ONE}
+    EMAIL_TWO: ${env:EMAIL_TWO}
  
 package:
  patterns:
@@ -105,6 +120,52 @@ functions:
     environment:
      PRODUCTS_TABLE_NAME: ${self:custom.environments.PRODUCTS_TABLE_NAME}
      STOCKS_TABLE_NAME: ${self:custom.environments.STOCKS_TABLE_NAME}
+  catalogBatchProcess:
+    handler: handler.catalogBatchProcess
+    events:
+     - sqs:
+        arn:
+          Fn::GetAtt:
+            - ProductSQSQueue
+            - Arn
+        batchSize: 5
+    environment:
+      PRODUCTS_TABLE_NAME: ${self:custom.environments.PRODUCTS_TABLE_NAME}
+      STOCKS_TABLE_NAME: ${self:custom.environments.STOCKS_TABLE_NAME}
+      SNS_TOPIC_ARN:
+        Fn::GetAtt:
+          - ProductSNSTopic
+          - TopicName
+
+resources:
+  Resources:
+    ProductSQSQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.environments.SQS_NAME}
+    ProductSNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: "Create Product Subscription"
+        TopicName: createProductTopic
+        Subscription:
+          - Endpoint: ${self:custom.environments.EMAIL_ONE}
+            Protocol: email
+    SNSSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn: 
+          Fn::GetAtt: 
+            - ProductSNSTopic
+            - TopicArn
+        Endpoint: ${self:custom.environments.EMAIL_TWO}
+        Protocol: email
+        FilterPolicy:
+          count: [{"numeric": ["<=", 5]}]
+
+
+
+
 
 # resources: # CloudFormation template syntax from here on.
 #   Resources:

@@ -2,12 +2,15 @@ import { S3Client, GetObjectCommand, GetObjectCommandInput, CopyObjectCommandInp
 import { S3EventRecord } from 'aws-lambda';
 import csv from 'csv-parser';
 import { winstonLogger } from '../../product_service/services/logger.service';
+import { SQSClient, SendMessageCommand, SendMessageCommandInput } from '@aws-sdk/client-sqs';
 
 export class FilePraserService{
 
     private bucket: string | undefined;
     private region: string | undefined;
+    private queueUrl: string | undefined;
     private client!: S3Client;
+    private sqsClient!: SQSClient;
 
     constructor(){
         this.initializeParams();
@@ -16,7 +19,9 @@ export class FilePraserService{
     initializeParams() {
         this.bucket = process.env.BUCKET_NAME;
         this.region = process.env.REGION;
+        this.queueUrl = process.env.SQS_QUEUE_URL;
         this.client = new S3Client({ region: this.region });
+        this.sqsClient = new SQSClient({ region: this.region })
     }
 
     async parseFile(record: S3EventRecord){
@@ -51,9 +56,19 @@ export class FilePraserService{
     }
 
     async parseResponse(readableStream: any) {
-       return new Promise<void>((resolve) => {
+       return new Promise<void>((resolve, reject) => {
             readableStream.on('data', (data: any) => {
-                console.log(data);
+                winstonLogger.logRequest(`Data is ${JSON.stringify(data)}`)
+                const message: SendMessageCommandInput = {
+                    MessageBody: JSON.stringify(data),
+                    DelaySeconds: 0,
+                    QueueUrl: this.queueUrl
+                }
+                try {
+                    this.sqsClient.send(new SendMessageCommand(message));
+                }catch(err:any) {
+                    reject(err);
+                }
             });
     
             readableStream.on('end',  async () => {
