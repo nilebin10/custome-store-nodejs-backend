@@ -6,8 +6,6 @@ export async function createProduct(event: any) {
 
   try {
     const { body } = event;
-    debugger;
-    console.log(body);
     winstonLogger.logRequest(`CREATE_PRODUCT:: Request with ${JSON.stringify(body)}`);
     const data = await productService.createProduct(body);
     const response = createResponse(data, false, STATUS_CODE.SUCCESS);

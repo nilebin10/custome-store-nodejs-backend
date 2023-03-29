@@ -40,6 +40,12 @@ provider:
           Resource: 
             - "arn:aws:s3:::${env:BUCKET_NAME}"
             - "arn:aws:s3:::${env:BUCKET_NAME}/*"
+        - Effect: "Allow"
+          Action:
+            - "sqs:SendMessage"
+            - "sqs:GetMessage"
+          Resource:
+            - "arn:aws:sqs:us-east-1:${env:ACCOUNT}:${env:QUEUE_NAME}"
 
 plugins:
   - serverless-offline
@@ -52,7 +58,9 @@ custom:
   environment:
     bucketName: ${env:BUCKET_NAME}
     region: ${env:REGION}
-
+    sqs_name: ${env:QUEUE_NAME}
+    account: ${env:ACCOUNT}
+    sqs_url: ${env:SQS_URL}
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1
@@ -96,6 +104,7 @@ functions:
     environment:
       BUCKET_NAME: ${self:custom.environment.bucketName}
       REGION: ${self:custom.environment.region}
+      SQS_QUEUE_URL: ${self:custom.environment.sqs_url}
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
