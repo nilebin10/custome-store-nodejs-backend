@@ -1,0 +1,5 @@
+{
+    "extends": "../tsconfig.json",
+    "include": ["../authorization-service/**/*.ts", "../shared-services/**/*", "@types/**/*.d.ts"],
+    "exclude": ["**/*.test.ts", "./dist", "node_modules"]
+}

@@ -1,11 +1,13 @@
 const path = require('path');
 const slsw = require('serverless-webpack');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
   entry: slsw.lib.entries,
   resolve: {
-    extensions: ['.js','.ts', 'tsx']
+    extensions: ['.js','.ts', 'tsx'],
+    plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })]
   },
   target: 'node',
   module: {
@@ -18,7 +20,7 @@ module.exports = {
             "declaration": false,
             "sourceMap": true, 
           },
-          configFile: '../tsconfig.json'
+          configFile: './tsconfig.json'
         },
         exclude: [
           [

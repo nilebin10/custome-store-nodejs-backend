@@ -1,8 +1,7 @@
 {
-  "name": "import-service",
+  "name": "authorization-service",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Authorization service for other Lambda functions",
   "scripts": {
     "package-build": "sls package",
     "deploy:dev": "sls deploy --stage dev",
@@ -13,14 +12,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.289.0",
-    "@aws-sdk/client-sqs": "^3.299.0",
-    "@aws-sdk/s3-request-presigner": "^3.289.0",
     "@types/uuid": "^8.3.4",
-    "ajv": "^8.11.0",
-    "csv-parser": "^3.0.0",
     "dotenv": "^16.0.3",
-    "uuid": "^9.0.0"
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.106",
@@ -32,8 +26,8 @@
     "serverless-webpack": "^5.11.0",
     "ts-jest": "^29.0.3",
     "ts-loader": "^9.4.2",
-    "typescript": "^4.8.4",
-    "tsconfig-paths-webpack-plugin": "^4.0.1"
+    "tsconfig-paths-webpack-plugin": "^4.0.1",
+    "typescript": "^4.8.4"
   },
   "author": "Nilesh Bind",
   "license": "ISC"

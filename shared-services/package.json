@@ -1,0 +1,17 @@
+{
+  "name": "shared_services",
+  "version": "1.0.0",
+  "description": "'Shared services used in all other services'",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "author": "Nilesh Bind",
+  "license": "ISC",
+  "dependencies": {
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+  }
+}

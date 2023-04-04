@@ -1,12 +1,17 @@
 
 import { ImportService } from '../services';
 import { APIGatewayEvent, } from 'aws-lambda';
-import { createResponse, STATUS_CODE } from '../../product_service/services';
+import { createResponse, STATUS_CODE, winstonLogger } from 'shared-services';
 
 const importService = new ImportService();
 export async function importProductFile(event: APIGatewayEvent){
 
     try{
+
+        const context = event?.requestContext;
+
+        winstonLogger.logRequest(`Authorizer context:: ${JSON.stringify(context)}`);
+
         const queryString = event.queryStringParameters;
         const { name } = queryString || {};
         if(name){
