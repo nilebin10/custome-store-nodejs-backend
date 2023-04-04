@@ -1,7 +1,6 @@
 import { S3Event } from 'aws-lambda';
-import { createResponse, STATUS_CODE,  } from '../../product_service/services';
+import { createResponse, STATUS_CODE, winstonLogger } from 'shared-services';
 import { FilePraserService } from '../services';
-import { winstonLogger } from '../../product_service/services/logger.service';
 
 export async function importFileParser(event: S3Event){
     const filePraserService = new FilePraserService();

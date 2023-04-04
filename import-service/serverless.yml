@@ -46,6 +46,19 @@ provider:
             - "sqs:GetMessage"
           Resource:
             - "arn:aws:sqs:us-east-1:${env:ACCOUNT}:${env:QUEUE_NAME}"
+        - Effect: "Allow"
+          Action:
+            - "lambda:InvokeFunction"
+          Resource:
+            - "arn:aws:lambda:${self:custom.environment.region}:${self:custom.environment.account}:function:authorization-service-dev-basicAuthorizer"
+  apiGateway:
+    resourcePolicy:
+      - Effect: "Allow"
+        Principal: "*"
+        Action:
+          - "execute-api:Invoke"
+        Resource:
+          - "arn:aws:lambda:${self:custom.environment.region}:${self:custom.environment.account}:function:authorization-service-dev-basicAuthorizer"
 
 plugins:
   - serverless-offline
@@ -89,6 +102,9 @@ functions:
             parameters:
               querystrings:
                 name: true
+          authorizer: 
+            arn: arn:aws:lambda:${self:custom.environment.region}:${self:custom.environment.account}:function:authorization-service-dev-basicAuthorizer
+            type: "token"
     environment: 
       BUCKET_NAME: ${self:custom.environment.bucketName}
       REGION: ${self:custom.environment.region}
@@ -146,13 +162,16 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+resources:
+ Resources:
+    Unauthorized:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          "gatewayresponse.header.Access-Control-Allow-Origin": "'*'"
+          "gatewayresponse.header.Access-Control-Allow-Headers": "'*'"
+        ResponseType: "DEFAULT_4XX"
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
+
+
